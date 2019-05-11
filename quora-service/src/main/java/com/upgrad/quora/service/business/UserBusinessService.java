@@ -52,8 +52,6 @@ public class UserBusinessService {
 
       UserEntity signUpUser = userDao.createUser(userEntity);
 
-      System.out.println("GET USER NAME >>>> " + signUpUser.getUsername());
-
       return signUpUser;
   }
 
