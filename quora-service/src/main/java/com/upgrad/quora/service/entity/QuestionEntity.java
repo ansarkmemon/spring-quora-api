@@ -8,6 +8,10 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "question")
+@NamedQueries({
+        @NamedQuery(name = "getAllQuestions", query = "select q from QuestionEntity q"),
+        @NamedQuery(name = "getQuestionById", query = "select q from QuestionEntity q where q.uuid = :uuid")
+})
 public class QuestionEntity implements Serializable {
 
   private static final long serialVersionUID = 6385994496663047405L;
