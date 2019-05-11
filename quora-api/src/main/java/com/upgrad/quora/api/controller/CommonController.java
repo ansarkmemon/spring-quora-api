@@ -3,6 +3,7 @@ package com.upgrad.quora.api.controller;
 import com.upgrad.quora.api.model.UserDetailsResponse;
 import com.upgrad.quora.service.business.UserBusinessService;
 import com.upgrad.quora.service.entity.UserEntity;
+import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,12 +18,11 @@ public class CommonController {
   private UserBusinessService userBusinessService;
 
   @RequestMapping(method = RequestMethod.GET, path = "/userprofile/{userId}")
-  public ResponseEntity<UserDetailsResponse> getUserById(@PathVariable("userId") final String userUuid, @RequestHeader("authorization") final String authorization) throws UserNotFoundException {
+  public ResponseEntity<UserDetailsResponse> getUserById(@PathVariable("userId") final String userUuid, @RequestHeader("authorization") final String authorization)
+          throws UserNotFoundException, AuthorizationFailedException {
 
-    System.out.println(userUuid);
-    System.out.println("authorization >>> " + authorization.toString());
 
-    UserEntity userById = userBusinessService.getUserById(userUuid);
+    UserEntity userById = userBusinessService.getUserProfile(userUuid, authorization);
 
     UserDetailsResponse userDetailsResponse = new UserDetailsResponse();
 
