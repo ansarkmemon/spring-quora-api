@@ -8,6 +8,10 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "user_auth")
+@NamedQueries({
+        @NamedQuery(name = "userAuthByToken", query = "select ua from UserAuthEntity ua where ua.accessToken = :token"),
+        @NamedQuery(name = "updateLogoutByToken", query = "update UserAuthEntity ua set ua.logoutAt = :logoutAt where ua.accessToken = :token")
+})
 public class UserAuthEntity implements Serializable {
 
   private static final long serialVersionUID = -1629983986063959849L;
