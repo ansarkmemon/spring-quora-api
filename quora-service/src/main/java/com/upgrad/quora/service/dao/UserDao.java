@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.time.ZonedDateTime;
 
 
 @Repository
@@ -62,4 +63,28 @@ public class UserDao {
       return false;
     }
   }
+
+  public UserAuthEntity getUserAuthByToken(final String accessToken) {
+    try {
+      UserAuthEntity authEntity = entityManager.createNamedQuery("userAuthByToken", UserAuthEntity.class)
+              .setParameter("token", accessToken)
+              .getSingleResult();
+
+      return authEntity;
+    } catch (NoResultException nre) {
+      return null;
+    }
+  }
+
+  public int updateUserLogoutByToken(final String accessToken, final ZonedDateTime logoutAt) {
+    int userAuthEntity = entityManager.createNamedQuery("updateLogoutByToken" )
+            .setParameter("token", accessToken)
+            .setParameter("logoutAt", logoutAt)
+            .executeUpdate();
+
+    System.out.println("DAO " + userAuthEntity);
+
+    return userAuthEntity;
+  }
+
 }
