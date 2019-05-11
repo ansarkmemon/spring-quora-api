@@ -76,15 +76,11 @@ public class UserDao {
     }
   }
 
-  public int updateUserLogoutByToken(final String accessToken, final ZonedDateTime logoutAt) {
-    int userAuthEntity = entityManager.createNamedQuery("updateLogoutByToken" )
+  public void updateUserLogoutByToken(final String accessToken, final ZonedDateTime logoutAt) {
+    entityManager.createNamedQuery("updateLogoutByToken" )
             .setParameter("token", accessToken)
             .setParameter("logoutAt", logoutAt)
             .executeUpdate();
-
-    System.out.println("DAO " + userAuthEntity);
-
-    return userAuthEntity;
   }
 
 }
