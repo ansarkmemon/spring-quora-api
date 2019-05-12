@@ -52,4 +52,14 @@ public class QuestionDao {
       System.out.println(e.getMessage());
     }
   }
+
+  public void deleteQuestion(String uuid) {
+    try {
+      entityManager.createNamedQuery("deleteQuestionById")
+              .setParameter("uuid", uuid)
+              .executeUpdate();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+  }
 }

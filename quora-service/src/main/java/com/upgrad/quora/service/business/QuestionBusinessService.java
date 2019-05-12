@@ -55,6 +55,12 @@ public class QuestionBusinessService {
     return uuid;
   }
 
+  @Transactional
+  public String deleteQuestion(String uuid) {
+    questionDao.deleteQuestion(uuid);
+    return uuid;
+  }
+
 
 
 

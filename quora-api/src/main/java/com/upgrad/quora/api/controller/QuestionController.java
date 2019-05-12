@@ -68,7 +68,7 @@ public class QuestionController {
   }
 
 
-  @RequestMapping(method = RequestMethod.PUT, path = "/edit/{questionId}")
+  @RequestMapping(method = RequestMethod.PUT, path = "/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<QuestionEditResponse> editQuestion(
           @RequestHeader("authorization") final String accessToken,
           @PathVariable("questionId") final String questionId,
@@ -84,6 +84,23 @@ public class QuestionController {
     QuestionEditResponse response = new QuestionEditResponse().id(questionId).status("QUESTION EDITED");
 
     return new ResponseEntity<QuestionEditResponse>(response, HttpStatus.OK);
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, path = "/delete/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<QuestionDeleteResponse> deleteQuestion(
+          @RequestHeader("authorization") final String accessToken,
+          @PathVariable("questionId") final String questionId
+  ) throws InvalidQuestionException, AuthorizationFailedException {
+
+    QuestionEntity question = questionBusinessService.getQuestionById(questionId);
+    UserAuthEntity userAuthEntity = userBusinessService.getUserByToken(accessToken);
+
+    questionBusinessService.isQuestionOwner(userAuthEntity, question);
+    questionBusinessService.deleteQuestion(questionId);
+
+    QuestionDeleteResponse response = new QuestionDeleteResponse().id(questionId).status("QUESTION DELETED");
+
+    return new ResponseEntity<QuestionDeleteResponse>(response, HttpStatus.OK);
   }
 
 }
