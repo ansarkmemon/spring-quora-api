@@ -47,4 +47,11 @@ public class RestExceptionHandler {
     );
   }
 
+  @ExceptionHandler(InvalidQuestionException.class)
+  public ResponseEntity<ErrorResponse> invalidQuestionException(InvalidQuestionException exe, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+            new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()), HttpStatus.NOT_FOUND
+    );
+  }
+
 }
