@@ -32,10 +32,9 @@ public class UserBusinessService {
   }
 
 
-  public UserEntity getUserProfile(final String userUuid, final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
 
+  public UserAuthEntity getUserByToken(final String accessToken) throws AuthorizationFailedException {
     UserAuthEntity userAuthByToken = userDao.getUserAuthByToken(accessToken);
-    UserEntity userById = getUserById(userUuid);
 
     if(userAuthByToken == null) {
       throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
@@ -44,6 +43,15 @@ public class UserBusinessService {
     if(userAuthByToken.getLogoutAt() != null) {
       throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get user details");
     }
+
+    return userAuthByToken;
+  }
+
+
+  public UserEntity getUserProfile(final String userUuid, final String accessToken) throws AuthorizationFailedException, UserNotFoundException {
+
+    getUserByToken(accessToken);
+    UserEntity userById = getUserById(userUuid);
 
     return userById;
   }
