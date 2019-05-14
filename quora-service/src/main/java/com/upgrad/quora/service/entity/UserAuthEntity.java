@@ -100,4 +100,5 @@ public class UserAuthEntity implements Serializable {
   public void setLogoutAt(ZonedDateTime logoutAt) {
     this.logoutAt = logoutAt;
   }
+
 }
