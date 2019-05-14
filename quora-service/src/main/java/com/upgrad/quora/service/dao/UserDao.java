@@ -83,4 +83,11 @@ public class UserDao {
             .executeUpdate();
   }
 
+  public String deleteUser(String id) {
+    UserEntity userEntity = getUserById(id);
+    String uuid = userEntity.getUuid();
+    entityManager.remove(userEntity);
+    return uuid;
+  }
+
 }
