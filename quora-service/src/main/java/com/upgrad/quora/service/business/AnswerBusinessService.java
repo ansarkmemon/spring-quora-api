@@ -2,11 +2,10 @@ package com.upgrad.quora.service.business;
 
 import com.upgrad.quora.service.dao.AnswerDao;
 import com.upgrad.quora.service.dao.QuestionDao;
-import com.upgrad.quora.service.dao.UserAuthTokenDao;
 import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
-import com.upgrad.quora.service.entity.UserAuthTokenEntity;
+import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -48,17 +47,17 @@ public class AnswerBusinessService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public AnswerEntity performCreateAnswer(final String authorizationToken, String questionId, String answerContent) throws AuthorizationFailedException, InvalidQuestionException {
-        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.getUserAuthToken(authorizationToken);
+        UserAuthEntity userAuthTokenEntity = userBusinessService.getUserByToken(authorizationToken);
         AnswerEntity answerEntity = new AnswerEntity();
         if (userAuthTokenEntity != null) {
             if (userBusinessService.isUserSignedIn(userAuthTokenEntity)) {
-                QuestionEntity question  = questionBusinessService.getQuestionForQuestionId(questionId);
+                QuestionEntity question  = questionBusinessService.getQuestionById(questionId);
                 if (question != null) {
                     answerEntity.setQuestion(question);
                     answerEntity.setDate(ZonedDateTime.now());
                     answerEntity.setAnswer(answerContent);
                     answerEntity.setUuid(UUID.randomUUID().toString());
-                    answerEntity.setUser(userAuthTokenEntity.getUser());
+                    answerEntity.setUser(userAuthTokenEntity.getUserId());
                     answerEntity = answerDao.createAnswer(answerEntity);
                 } else {
                     throw new InvalidQuestionException("QUES-001", "The question entered is invalid");
@@ -74,12 +73,12 @@ public class AnswerBusinessService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public AnswerEntity performUpdateAnswer( String authorizationToken, String answerId, String answerContent) throws AuthorizationFailedException, AnswerNotFoundException {
-        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.getUserAuthToken(authorizationToken);
+        UserAuthEntity userAuthTokenEntity = userBusinessService.getUserByToken(authorizationToken);
         if (userAuthTokenEntity != null) {
             if (userBusinessService.isUserSignedIn(userAuthTokenEntity)) {
                 AnswerEntity answerEntity = getAnswerForAnswerId(answerId);
                 if (answerEntity != null) {
-                    if (isUserAnswerOwner(userAuthTokenEntity.getUser(), answerEntity.getUser())) {
+                    if (isUserAnswerOwner(userAuthTokenEntity.getUserId(), answerEntity.getUser())) {
                         answerEntity.setAnswer(answerContent);
                         return answerDao.editAnswerContent(answerEntity);
                     } else {
@@ -98,10 +97,10 @@ public class AnswerBusinessService {
     }
 
     public List<AnswerEntity> performGetAllAnswersToQuestion(final String authorizationToken, String questionId) throws AuthorizationFailedException, InvalidQuestionException {
-        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.getUserAuthToken(authorizationToken);
+        UserAuthEntity userAuthTokenEntity = userBusinessService.getUserByToken(authorizationToken);
         if (userAuthTokenEntity != null) {
             if (userBusinessService.isUserSignedIn(userAuthTokenEntity)) {
-                QuestionEntity questionEntity = questionBusinessService.getQuestionForQuestionId(questionId);
+                QuestionEntity questionEntity = questionBusinessService.getQuestionById(questionId);
                 if (questionEntity != null) {
                     //Even if the question is valid and there are no answers to the question we are deliberately
                     //not responding with a message that there are no answers as it is not mentioned in requirements
@@ -119,13 +118,13 @@ public class AnswerBusinessService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void performDeleteAnswer(final String authorizationToken, String answerId) throws AuthorizationFailedException, AnswerNotFoundException {
-        UserAuthTokenEntity userAuthTokenEntity = userBusinessService.getUserAuthToken(authorizationToken);
+        UserAuthEntity userAuthTokenEntity = userBusinessService.getUserByToken(authorizationToken);
         if (userAuthTokenEntity != null) {
             if (userBusinessService.isUserSignedIn(userAuthTokenEntity)) {
                 AnswerEntity answerEntity = getAnswerForAnswerId(answerId);
                 if (answerEntity != null) {
-                    if (isUserAnswerOwner(userAuthTokenEntity.getUser(), answerEntity.getUser())
-                            || userBusinessService.isUserAdmin(userAuthTokenEntity.getUser())) {
+                    if (isUserAnswerOwner(userAuthTokenEntity.getUserId(), answerEntity.getUser())
+                            || userBusinessService.isUserAdmin(userAuthTokenEntity.getUserId())) {
                         answerDao.deleteAnswer(answerEntity);
                     } else {
                         throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");

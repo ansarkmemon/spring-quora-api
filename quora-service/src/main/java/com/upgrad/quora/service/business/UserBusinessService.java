@@ -121,4 +121,24 @@ public class UserBusinessService {
 
     return userAuthEntity.getUserId().getUuid();
   }
+
+
+  public boolean isUserSignedIn(UserAuthEntity userAuthTokenEntity) {
+    boolean isUserSignedIn = false;
+    if (userAuthTokenEntity != null && userAuthTokenEntity.getLoginAt() != null && userAuthTokenEntity.getExpiresAt() != null) {
+      if ((userAuthTokenEntity.getLogoutAt() == null)) {
+        isUserSignedIn = true;
+      }
+    }
+    return isUserSignedIn;
+  }
+
+
+  public boolean isUserAdmin(UserEntity user) {
+    boolean isUserAdmin = false;
+    if (user != null && "admin".equals(user.getRole())) {
+      isUserAdmin = true;
+    }
+    return isUserAdmin;
+  }
 }
