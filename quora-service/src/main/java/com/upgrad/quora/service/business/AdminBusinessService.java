@@ -1,6 +1,6 @@
 package com.upgrad.quora.service.business;
 
-import com.upgrad.quora.service.dao.UserDao;
+import com.upgrad.quora.service.dao.AdminDao;
 import com.upgrad.quora.service.entity.UserAuthEntity;
 import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AdminAuthorFailedException;
@@ -16,7 +16,19 @@ import java.time.ZonedDateTime;
 public class AdminBusinessService {
 
     @Autowired
-    private UserDao userDao;
+    private UserBusinessService userBusinessService;
+
+    @Autowired
+    private AdminDao adminDao;
+
+    private boolean confirmAdmin(final String accessToken) throws AuthorizationFailedException {
+        UserAuthEntity userByToken = userBusinessService.getUserByToken(accessToken);
+
+        if(userByToken.getUserId().getRole().equals("admin"))
+            return true;
+        else
+            throw new AuthorizationFailedException("ATHR-003", "Unauthorized Access, Entered user is not an admin");
+    }
 
     @Transactional
     public String deleteUser(final String userid , final String accessToken) throws AuthorizationFailedException,AdminAuthorFailedException, UserNotFoundException {
