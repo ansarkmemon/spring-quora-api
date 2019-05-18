@@ -25,7 +25,7 @@ public class UserAuthEntity implements Serializable {
   @NotNull
   private String uuid;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "USER_ID")
   private UserEntity userId;
 
@@ -100,5 +100,4 @@ public class UserAuthEntity implements Serializable {
   public void setLogoutAt(ZonedDateTime logoutAt) {
     this.logoutAt = logoutAt;
   }
-
-}
+} 
