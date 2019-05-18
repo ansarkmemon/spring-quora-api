@@ -3,6 +3,7 @@ package com.upgrad.quora.service.business;
 import com.upgrad.quora.service.dao.QuestionDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,12 @@ public class QuestionBusinessService {
   public List<QuestionEntity> getAllQuestions() {
     List<QuestionEntity> questions = questionDao.getAllQuestions();
     return questions;
+  }
+
+  public List<QuestionEntity> getAllQuestionsByUser(final UserEntity userId) {
+    List<QuestionEntity> questionsList = questionDao.getAllQuestionsByUser(userId);
+
+    return questionsList;
   }
 
   public QuestionEntity getQuestionById(String id) throws InvalidQuestionException {
