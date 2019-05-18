@@ -17,15 +17,15 @@ public class AdminController {
     @Autowired
     private AdminBusinessService adminBusinessService;
 
-    @RequestMapping(method = RequestMethod.DELETE , path = "/user/{userId}")
-    public ResponseEntity <UserDeleteResponse> deleteUser(@PathVariable("userId") final String userid,
-                                                          @RequestHeader("authorization") final String authorization) throws AdminAuthorFailedException,AuthorizationFailedException, UserNotFoundException {
+    @RequestMapping(method = RequestMethod.DELETE, path = "user/{userId}")
+    public ResponseEntity<UserDeleteResponse> deleteUser(
+            @PathVariable("userId") String userId,
+            @RequestHeader("authorization") String accessToken
+    ) throws AuthorizationFailedException, UserNotFoundException {
 
-        String [] bearerToken = authorization.split("Bearer ");
-
-        String uuid = adminBusinessService.deleteUser(userid ,bearerToken[1]);
-        UserDeleteResponse userDeleteResponse=new UserDeleteResponse().id(uuid).status("USER SUCCESSFULLY DELETED");
-
-        return new ResponseEntity<UserDeleteResponse>(userDeleteResponse,HttpStatus.OK);
+        String deletedUserId = adminBusinessService.deleteUser(accessToken, userId);
+        UserDeleteResponse userDeleteResponse = new UserDeleteResponse().id(deletedUserId).status("USER SUCCESSFULLY DELETED");
+        return new ResponseEntity<UserDeleteResponse>(userDeleteResponse, HttpStatus.OK);
     }
+
 }
