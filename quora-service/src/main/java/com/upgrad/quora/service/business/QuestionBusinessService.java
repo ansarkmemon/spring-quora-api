@@ -18,6 +18,9 @@ public class QuestionBusinessService {
   @Autowired
   private QuestionDao questionDao;
 
+  @Autowired
+  private UserBusinessService userBusinessService;
+
   @Transactional
   public QuestionEntity createQuestion(QuestionEntity questionEntity) {
     QuestionEntity createdQuestion = questionDao.createQuestion(questionEntity);
@@ -47,27 +50,46 @@ public class QuestionBusinessService {
   }
 
 
-  public Boolean isQuestionOwner(UserAuthEntity userAuthEntity, QuestionEntity questionEntity) throws AuthorizationFailedException {
-    if(questionEntity.getUserId().getUuid().equals(userAuthEntity.getUserId().getUuid())) {
+  private Boolean isQuestionOwner(UserAuthEntity userAuthEntity, QuestionEntity questionEntity) throws AuthorizationFailedException {
+    if(questionEntity.getUserId().getUuid().equals(userAuthEntity.getUserId().getUuid()))
       return true;
+    else
+      return false;
+
+  }
+
+
+  @Transactional
+  public String editQuestion(String uuid, String questionContent, String accessToken) throws InvalidQuestionException, AuthorizationFailedException {
+    QuestionEntity question = getQuestionById(uuid);
+    UserAuthEntity userAuthEntity = userBusinessService.getUserByToken(accessToken);
+
+    if(isQuestionOwner(userAuthEntity, question)) {
+      questionDao.editQuestion(uuid, questionContent);
+      return uuid;
     } else {
       throw new AuthorizationFailedException("ATHR-003", "Only the question owner can edit the question");
     }
-  }
 
 
-  @Transactional
-  public String editQuestion(String uuid, String questionContent) {
-    questionDao.editQuestion(uuid, questionContent);
-    return uuid;
   }
 
   @Transactional
-  public String deleteQuestion(String uuid) {
-    questionDao.deleteQuestion(uuid);
-    return uuid;
-  }
+  public String deleteQuestion(String uuid, String accessToken) throws AuthorizationFailedException, InvalidQuestionException {
 
+    QuestionEntity question = getQuestionById(uuid);
+    UserAuthEntity userAuthEntity = userBusinessService.getUserByToken(accessToken);
+
+    String userRole = userAuthEntity.getUserId().getRole();
+
+    if(isQuestionOwner(userAuthEntity, question) || userRole.equals("admin")) {
+      questionDao.deleteQuestion(uuid);
+      return uuid;
+    } else {
+      throw new AuthorizationFailedException("ATHR-003", "Only the question owner or admin can delete the question");
+    }
+
+  }
 
 
 
