@@ -30,12 +30,10 @@ public class QuestionController {
   @Autowired
   private QuestionBusinessService questionBusinessService;
 
-  @RequestMapping(method = RequestMethod.GET, path = "/all")
-  public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException {
-
-    userBusinessService.getUserByToken(accessToken);
-
-    List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions();
+  /**
+   * Utility method to build List of Question Details Response to avoid repeated code.
+   * */
+  private List<QuestionDetailsResponse> buildQuestionDetailsResponseList(List<QuestionEntity> allQuestions) {
     List<QuestionDetailsResponse> questionDetailsList = new LinkedList<>();
 
     for (QuestionEntity question : allQuestions) {
@@ -44,6 +42,18 @@ public class QuestionController {
       questionDetails.setContent(question.getContent());
       questionDetailsList.add(questionDetails);
     }
+
+    return questionDetailsList;
+
+  }
+
+  @RequestMapping(method = RequestMethod.GET, path = "/all")
+  public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String accessToken) throws AuthorizationFailedException {
+
+    userBusinessService.getUserByToken(accessToken);
+
+    List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestions();
+    List<QuestionDetailsResponse> questionDetailsList = buildQuestionDetailsResponseList(allQuestions);
 
 
     return new ResponseEntity<List<QuestionDetailsResponse>>(questionDetailsList, HttpStatus.OK) ;
@@ -77,12 +87,7 @@ public class QuestionController {
           final QuestionEditRequest questionEditRequest
           ) throws InvalidQuestionException, AuthorizationFailedException {
 
-    QuestionEntity question = questionBusinessService.getQuestionById(questionId);
-    UserAuthEntity userAuthEntity = userBusinessService.getUserByToken(accessToken);
-
-    questionBusinessService.isQuestionOwner(userAuthEntity, question);
-    questionBusinessService.editQuestion(questionId, questionEditRequest.getContent());
-
+    questionBusinessService.editQuestion(questionId, questionEditRequest.getContent(), accessToken);
     QuestionEditResponse response = new QuestionEditResponse().id(questionId).status("QUESTION EDITED");
 
     return new ResponseEntity<QuestionEditResponse>(response, HttpStatus.OK);
@@ -94,12 +99,7 @@ public class QuestionController {
           @PathVariable("questionId") final String questionId
   ) throws InvalidQuestionException, AuthorizationFailedException {
 
-    QuestionEntity question = questionBusinessService.getQuestionById(questionId);
-    UserAuthEntity userAuthEntity = userBusinessService.getUserByToken(accessToken);
-
-    questionBusinessService.isQuestionOwner(userAuthEntity, question);
-    questionBusinessService.deleteQuestion(questionId);
-
+    questionBusinessService.deleteQuestion(questionId, accessToken);
     QuestionDeleteResponse response = new QuestionDeleteResponse().id(questionId).status("QUESTION DELETED");
 
     return new ResponseEntity<QuestionDeleteResponse>(response, HttpStatus.OK);
@@ -117,16 +117,7 @@ public class QuestionController {
     userBusinessService.getUserByToken(accessToken);
 
     List<QuestionEntity> allQuestions = questionBusinessService.getAllQuestionsByUser(userEntity);
-    List<QuestionDetailsResponse> questionDetailsList = new LinkedList<>();
-
-
-
-    for (QuestionEntity question : allQuestions) {
-      QuestionDetailsResponse questionDetails = new QuestionDetailsResponse();
-      questionDetails.setId(question.getUuid());
-      questionDetails.setContent(question.getContent());
-      questionDetailsList.add(questionDetails);
-    }
+    List<QuestionDetailsResponse> questionDetailsList = buildQuestionDetailsResponseList(allQuestions);
 
 
     return new ResponseEntity<List<QuestionDetailsResponse>>(questionDetailsList, HttpStatus.OK);
