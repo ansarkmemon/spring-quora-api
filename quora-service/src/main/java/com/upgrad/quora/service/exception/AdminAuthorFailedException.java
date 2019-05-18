@@ -3,12 +3,14 @@ package com.upgrad.quora.service.exception;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-public class AdminAuthorFailedException extends Exception {
-
+/**
+ * AuthorizationFailedException is thrown when user is not authorized to access that endpoint.
+ */
+public class AuthorizationFailedException extends Exception {
     private final String code;
     private final String errorMessage;
 
-    public AdminAuthorFailedException(final String code, final String errorMessage) {
+    public AuthorizationFailedException(final String code, final String errorMessage) {
         this.code = code;
         this.errorMessage = errorMessage;
     }
@@ -34,6 +36,6 @@ public class AdminAuthorFailedException extends Exception {
 
     public String getErrorMessage() {
         return errorMessage;
-
     }
+
 }
